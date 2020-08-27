@@ -15,11 +15,11 @@ pacman -S openssh
   
 Automatic install/update:
 ```
-sudo bash -c "$(curl -LSs https://github.com/casjay-dotfiles/ssh/raw/master/install.sh)"
+sudo bash -c "$(curl -LSs https://github.com/systemmgr/ssh/raw/master/install.sh)"
 ```
 Manual install:
 ```
-sudo git clone https://github.com/casjay-dotfiles/ssh "/usr/local/etc/ssh"
+sudo git clone https://github.com/systemmgr/ssh "/usr/local/etc/ssh"
 sudo ln -sf /usr/local/etc/ssh/sshd_config /etc/ssh/sshd_config
 sudo systemctl enable --now sshd
 ```
