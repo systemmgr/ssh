@@ -89,7 +89,7 @@ if [ -d "$APPDIR/.git" ]; then
 else
   execute \
   "backupapp && \
-        git_clone -q $REPO/$APPNAME $APPDIR" \
+  git_clone -q $REPO/$APPNAME $APPDIR" \
   "Installing $APPNAME configurations"
 fi
 
@@ -101,7 +101,7 @@ failexitcode
 # run post install scripts
 
 run_postinst() {
-  systemmgr_run_post
+  systemmgr_run_postinst
   ln_sf $APPDIR/sshd_config /etc/ssh/sshd_config
   devnull systemctl enable --now sshd || devnull systemctl enable --now ssh
   devnull systemctl restart ssh || devnull systemctl restart sshd
