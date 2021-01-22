@@ -9,7 +9,7 @@ HostKey /etc/ssh/ssh_host_ed25519_key
 RekeyLimit default none
 SyslogFacility AUTHPRIV
 
-LoginGraceTime 0
+LoginGraceTime 300
 PermitRootLogin yes
 StrictModes yes
 MaxAuthTries 3
@@ -50,7 +50,7 @@ AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
 AcceptEnv XMODIFIERS
 
 # override default of no subsystems
-Subsystem	sftp	/usr/libexec/openssh/sftp-server
+Subsystem sftp /usr/libexec/openssh/sftp-server
 IgnoreRhosts yes
 KeepAlive yes
 Protocol 2

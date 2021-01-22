@@ -46,9 +46,10 @@ scripts_check
 # Defaults
 APPNAME="${APPNAME:-ssh}"
 APPDIR="/usr/local/etc/$APPNAME"
+INSTDIR="${INSTDIR}"
 REPO="${SYSTEMMGRREPO:-https://github.com/systemmgr}/${APPNAME}"
 REPORAW="${REPORAW:-$REPO/raw}"
-APPVERSION="$(curl -LSs $REPORAW/master/version.txt)"
+APPVERSION="$(__appversion $REPORAW/master/version.txt)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -61,6 +62,13 @@ systemmgr_install
 # Script options IE: --help
 
 show_optvars "$@"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Requires root - no point in continuing
+
+sudoreq # sudo required
+#sudorun  # sudo optional
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -82,15 +90,15 @@ ensure_perms
 
 # Main progam
 
-if [ -d "$APPDIR/.git" ]; then
+if [ -d "$INSTDIR/.git" ]; then
   execute \
-  "git_update $APPDIR" \
-  "Updating $APPNAME configurations"
+    "git_update $INSTDIR" \
+    "Updating $APPNAME configurations"
 else
   execute \
-  "backupapp && \
-  git_clone -q $REPO/$APPNAME $APPDIR" \
-  "Installing $APPNAME configurations"
+    "backupapp && \
+  git_clone -q $REPO/$APPNAME $INSTDIR" \
+    "Installing $APPNAME configurations"
 fi
 
 # exit on fail
@@ -102,14 +110,14 @@ failexitcode
 
 run_postinst() {
   systemmgr_run_postinst
-  ln_sf $APPDIR/sshd_config /etc/ssh/sshd_config
+  cp_rf "$APPDIR/sshd_config" /etc/ssh/sshd_config
   devnull systemctl enable --now sshd || devnull systemctl enable --now ssh
   devnull systemctl restart ssh || devnull systemctl restart sshd
 }
 
 execute \
-"run_postinst" \
-"Running post install scripts"
+  "run_postinst" \
+  "Running post install scripts"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
