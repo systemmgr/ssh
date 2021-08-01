@@ -5,13 +5,13 @@ Secure SHell is a program for logging into and executing commands on a remote ma
 Requires:  
 
 ```shell
-sudo bash -c "$(curl -LSs https://github.com/systemmgr/installer/raw/master/install.sh)"
+sudo bash -c "$(curl -LSs https://github.com/systemmgr/installer/raw/main/install.sh)"
 ```
 
 Automatic:
 
 ```shell
-bash -c "$(curl -LSs https://github.com/systemmgr/ssh/raw/master/install.sh)"
+bash -c "$(curl -LSs https://github.com/systemmgr/ssh/raw/main/install.sh)"
 ```
 
 Install:
