@@ -1,4 +1,5 @@
-#	$OpenBSD: sshd_config,v 1.93 2014/01/10 05:59:19 djm Exp $
+# $OpenBSD: sshd_config,v 1.93 2014/01/10 05:59:19 djm Exp $
+# If you get a duplicate motd then disable the PrintMotd option
 Port 22
 AddressFamily any
 Protocol 2
@@ -9,10 +10,10 @@ HostKey /etc/ssh/ssh_host_ed25519_key
 RekeyLimit default none
 SyslogFacility AUTHPRIV
 
-LoginGraceTime 300
+LoginGraceTime 0
 PermitRootLogin yes
 StrictModes yes
-MaxAuthTries 3
+MaxAuthTries 2
 MaxSessions 99999
 
 PermitEmptyPasswords no
@@ -37,11 +38,11 @@ UsePAM yes
 X11Forwarding yes
 X11UseLocalhost yes
 PermitTTY yes
-Banner /etc/issue.net
+Banner /etc/casjaysdev/banners/ssh.txt
 PrintMotd no
 PrintLastLog yes
 TCPKeepAlive yes
-#UsePrivilegeSeparation yes
+UsePrivilegeSeparation yes
 
 # Accept locale-related environment variables
 AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
@@ -52,5 +53,6 @@ AcceptEnv XMODIFIERS
 # override default of no subsystems
 Subsystem sftp /usr/libexec/openssh/sftp-server
 IgnoreRhosts yes
+Banner /etc/casjaysdev/banners/ssh.txt
 KeepAlive yes
 Protocol 2

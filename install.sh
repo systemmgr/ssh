@@ -134,11 +134,7 @@ fi
 run_postinst() {
   systemmgr_run_post
   cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
-  if system_service_enable sshd; then
-    system_service_restart sshd
-  elif system_service_enable ssh; then
-    system_service_restart ssh
-  fi
+  systemctl restart ssh &>/dev/null || systemctl restart sshd &>/dev/null || systemctl restart openssh-server &>/dev/null
 }
 #
 execute "run_postinst" "Running post install scripts"
