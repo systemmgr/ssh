@@ -134,6 +134,9 @@ fi
 run_postinst() {
   systemmgr_run_post
   cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
+  if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/ssh*|grep -qv '#'; then
+    sudo sed -i 's|.*session.*optional.*pam_motd.so|session    optional     pam_motd.so|g' /etc/pam.d/ssh*
+  fi
   systemctl restart ssh &>/dev/null || systemctl restart sshd &>/dev/null || systemctl restart openssh-server &>/dev/null
 }
 #
