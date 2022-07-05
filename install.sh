@@ -137,7 +137,11 @@ run_postinst() {
   if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/ssh*|grep -qv '#'; then
     sudo sed -i 's|.*session.*optional.*pam_motd.so|session    optional     pam_motd.so|g' /etc/pam.d/ssh*
   fi
+  if [[ -n "$(command -v update-motd)" ]]; then
+    update-motd
+  fi
   systemctl restart ssh &>/dev/null || systemctl restart sshd &>/dev/null || systemctl restart openssh-server &>/dev/null
+  systemctl status openssh-server|grep -q 'running' || systemctl status ssh*|grep -q 'running' || echo "failed to start openssh server" 1>&2
 }
 #
 execute "run_postinst" "Running post install scripts"
