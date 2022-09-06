@@ -1,5 +1,4 @@
 # $OpenBSD: sshd_config,v 1.93 2014/01/10 05:59:19 djm Exp $
-# If you get a duplicate motd then disable the PrintMotd option
 Port 22
 AddressFamily any
 Protocol 2
@@ -18,6 +17,7 @@ MaxSessions 99999
 
 PermitEmptyPasswords no
 PasswordAuthentication yes
+IgnoreRhosts yes
 
 ChallengeResponseAuthentication no
 
@@ -38,11 +38,13 @@ UsePAM yes
 X11Forwarding yes
 X11UseLocalhost yes
 PermitTTY yes
-Banner /etc/casjaysdev/banners/ssh.txt
 PrintMotd no
 PrintLastLog yes
 TCPKeepAlive yes
 UsePrivilegeSeparation yes
+
+# show custom banner
+Banner /etc/casjaysdev/banners/ssh.txt
 
 # Accept locale-related environment variables
 AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
@@ -52,7 +54,4 @@ AcceptEnv XMODIFIERS
 
 # override default of no subsystems
 Subsystem sftp /usr/libexec/openssh/sftp-server
-IgnoreRhosts yes
-Banner /etc/casjaysdev/banners/ssh.txt
-KeepAlive yes
 Protocol 2
