@@ -140,7 +140,9 @@ run_postinst() {
   if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/system-login | grep -qv '#'; then
     sudo sed -i 's|.*session.*optional.*pam_motd.so|#session    optional   pam_motd.so|g' /etc/pam.d/system-login
   fi
-  if [[ -n "$(command -v update-motd)" ]]; then
+  [ -d "/etc/casjaysdev/banners/" ] || mkdir -p "/etc/casjaysdev/banners"
+  [ -f "/etc/casjaysdev/banners/ssh.txt" ] || touch "/etc/casjaysdev/banners/ssh.txt"
+  if [ -n "$(command -v update-motd)" ]; then
     update-motd
   fi
   systemctl restart ssh &>/dev/null || systemctl restart sshd &>/dev/null || systemctl restart openssh-server &>/dev/null
