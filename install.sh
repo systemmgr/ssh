@@ -1,46 +1,69 @@
 #!/usr/bin/env bash
+# shellcheck shell=bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202209062243-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  jason@casjaysdev.com
+# @@License          :  LICENSE.md
+# @@ReadME           :  install.sh --help
+# @@Copyright        :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @@Created          :  Tuesday, Sep 27, 2022 11:33 EDT
+# @@File             :  install.sh
+# @@Description      :  Installer script for ssh
+# @@Changelog        :  Updated install function
+# @@TODO             :  Better documentation
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  installers/systemmgr
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="ssh"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
+VERSION="202209062243-git"
+HOME="${USER_HOME:-$HOME}"
+USER="${SUDO_USER:-$USER}"
+RUN_USER="${SUDO_USER:-$USER}"
+SCRIPT_SRC_DIR="${BASH_SOURCE%/*}"
+SCRIPTS_PREFIX="systemmgr"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 020920211933-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
-# @ReadME        : README.md
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Tuesday, Feb 09, 2021 19:33 EST
-# @File          : ssh
-# @Description   : Installer script for ssh
-# @TODO          :
-# @Other         :
-# @Resource      :
+# Set bash options
+#if [ ! -t 0 ] && { [ "$1" = --term ] || [ $# = 0 ]; }; then { [ "$1" = --term ] && shift 1 || true; } && TERMINAL_APP="TRUE" myterminal -e "$APPNAME $*" && exit || exit 1; fi
+[ "$1" = "--debug" ] && set -x && export SCRIPT_OPTS="--debug" && export _DEBUG="on"
+[ "$1" = "--raw" ] && export SHOW_RAW="true"
+set -o pipefail
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import functions
 CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
 SCRIPTSFUNCTDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}/functions"
-SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-app-installer.bash}"
+SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-mgr-installers.bash}"
 SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/main/functions}"
-connect_test() { ping -c1 1.1.1.1 &>/dev/null || curl --disable -LSs --connect-timeout 3 --retry 0 --max-time 1 1.1.1.1 2>/dev/null | grep -e "HTTP/[0123456789]" | grep -q "200" -n1 &>/dev/null; }
+connect_test() { curl -q -ILSsf --retry 1 -m 1 "https://1.1.1.1" | grep -iq 'server:*.cloudflare' || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -f "$PWD/$SCRIPTSFUNCTFILE" ]; then
   . "$PWD/$SCRIPTSFUNCTFILE"
 elif [ -f "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" ]; then
   . "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE"
 elif connect_test; then
-  curl -LSs "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
+  curl -q -LSsf "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
   . "/tmp/$SCRIPTSFUNCTFILE"
 else
   echo "Can not load the functions file: $SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" 1>&2
-  exit 1
+  exit 90
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define pre-install scripts
+run_pre_install() {
+  return 0
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define custom functions
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Call the main function
-system_installdirs
+systemmgr_install
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# trap the cleanup function
+trap_exit
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Make sure the scripts repo is installed
 scripts_check
@@ -61,21 +84,21 @@ PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
 # Require a version higher than
 systemmgr_req_version "$APPVERSION"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Call the systemmgr function
-systemmgr_install
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Script options IE: --help
 show_optvars "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Requires root - no point in continuing
-sudoreq # sudo required
+sudoreq "$0 $*" # sudo required
 #sudorun # sudo optional
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Do not update - add --force to overwrite
 #installer_noupdate "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# initialize the installer
+# Initialize the installer
 systemmgr_run_init
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Run pre-install commands
+execute "run_pre_install" "Running pre-installation commands"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end with a space
 APP="$APPNAME "
@@ -84,7 +107,7 @@ PYTH=""
 PIPS=""
 CPAN=""
 GEMS=""
-
+NPM=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install packages - useful for package that have the same name on all oses
 install_packages "$APP"
@@ -107,6 +130,9 @@ install_cpan "$CPAN"
 # check for ruby binaries and install using ruby package manager
 install_gem "$GEMS"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# check for npm binaries and install using node package manager
+install_npm "$NPM"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other dependencies
 dotfilesreq
 dotfilesreqadmin
@@ -120,7 +146,7 @@ if [ -d "$APPDIR" ]; then
   execute "backupapp $APPDIR $APPNAME" "Backing up $APPDIR"
 fi
 # Main progam
-if am_i_online; then
+if __am_i_online; then
   if [ -d "$INSTDIR/.git" ]; then
     execute "git_update $INSTDIR" "Updating $APPNAME configurations"
   else
@@ -133,7 +159,17 @@ fi
 # run post install scripts
 run_postinst() {
   systemmgr_run_post
-  cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
+  if [ -f "/usr/libexec/sftp-server" ]; then
+    SFTP_SERVER="/usr/libexec/sftp-server"
+  elif [ -f "/usr/lib/ssh/sftp-server" ]; then
+    SFTP_SERVER="/usr/lib/ssh/sftp-server"
+  else
+    SFTP_SERVER=""
+  fi
+  if [ -n "$SFTP_SERVER" ]; then
+    sed -i "s|/usr/libexec/openssh/sftp-server|$SFTP_SERVER|g" "$APPDIR/sshd_config"
+    cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
+  fi
   if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/ssh* | grep -qv '#'; then
     sudo sed -i 's|.*session.*optional.*pam_motd.so|#session    optional     pam_motd.so|g' /etc/pam.d/ssh*
   fi
@@ -148,8 +184,12 @@ run_postinst() {
   systemctl restart ssh &>/dev/null || systemctl restart sshd &>/dev/null || systemctl restart openssh-server &>/dev/null
   systemctl status openssh-server | grep -q 'running' || systemctl status ssh* | grep -q 'running' || echo "failed to start openssh server" 1>&2
 }
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# run post install scripts
 execute "run_postinst" "Running post install scripts"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Output post install message
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create version file
 systemmgr_install_version
@@ -157,7 +197,19 @@ systemmgr_install_version
 # run exit function
 run_exit
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# End application
+# run any external scripts
+if ! cmd_exists "$APPNAME" && [ -f "$INSTDIR/build.sh" ]; then
+  if builtin cd "$PLUGDIR/source"; then
+    BUILD_SCRIPT_SRC_DIR="$PLUGDIR/source"
+    BUILD_SRC_URL=""
+    export BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL
+    eval "$INSTDIR/build.sh"
+  fi
+  cmd_exists $APPNAME || printf_red "$APPNAME is not installed: run $INSTDIR/build.sh"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lets exit with code
-exit ${exitCode:-$?}
+exit ${EXIT:-$exitCode}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
