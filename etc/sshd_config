@@ -1,4 +1,4 @@
-# $OpenBSD: sshd_config,v 1.93 2014/01/10 05:59:19 djm Exp $
+# $OpenBSD: sshd_config,v 1.104 2021/07/02 05:11:21 dtucker Exp $
 Port 22
 AddressFamily any
 HostKey /etc/ssh/ssh_host_rsa_key
