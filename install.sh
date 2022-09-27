@@ -167,8 +167,8 @@ run_postinst() {
     SFTP_SERVER=""
   fi
   if [ -n "$SFTP_SERVER" ]; then
-    sed -i "s|/usr/libexec/openssh/sftp-server|$SFTP_SERVER|g" "$APPDIR/sshd_config"
     cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
+    sed -i "s|/usr/libexec/openssh/sftp-server|$SFTP_SERVER|g" "/etc/ssh/sshd_config"
   fi
   if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/ssh* | grep -qv '#'; then
     sudo sed -i 's|.*session.*optional.*pam_motd.so|#session    optional     pam_motd.so|g' /etc/pam.d/ssh*
