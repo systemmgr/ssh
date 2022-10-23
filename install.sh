@@ -159,16 +159,19 @@ fi
 # run post install scripts
 run_postinst() {
   systemmgr_run_post
+  local SFTP_SERVER=""
   if [ -f "/usr/libexec/sftp-server" ]; then
     SFTP_SERVER="/usr/libexec/sftp-server"
+  elif [ -f "/lib/ssh/sftp-server" ]; then
+    SFTP_SERVER="/lib/ssh/sftp-server"
   elif [ -f "/usr/lib/ssh/sftp-server" ]; then
     SFTP_SERVER="/usr/lib/ssh/sftp-server"
-  else
-    SFTP_SERVER=""
+  elif [ -f "/usr/lib/openssh/sftp-server" ]; then
+    SFTP_SERVER="/usr/lib/openssh/sftp-server"
   fi
   if [ -n "$SFTP_SERVER" ]; then
     cp_rf "$APPDIR/sshd_config" "/etc/ssh/sshd_config"
-    sed -i "s|/usr/libexec/openssh/sftp-server|$SFTP_SERVER|g" "/etc/ssh/sshd_config"
+    grep -sq "$SFTP_SERVER" "/etc/ssh/sshd_config" || sed -i "s|/usr/libexec/openssh/sftp-server|$SFTP_SERVER|g" "/etc/ssh/sshd_config"
   fi
   if grep -R 'session.*optional.*pam_motd.so' /etc/pam.d/ssh* | grep -qv '#'; then
     sudo sed -i 's|.*session.*optional.*pam_motd.so|#session    optional     pam_motd.so|g' /etc/pam.d/ssh*
